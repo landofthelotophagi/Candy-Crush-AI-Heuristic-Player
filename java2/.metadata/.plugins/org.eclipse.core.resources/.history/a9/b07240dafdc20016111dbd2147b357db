@@ -1,0 +1,177 @@
+package gr.auth.ee.dsproject.crush.player;
+
+import gr.auth.ee.dsproject.crush.CrushUtilities;
+import gr.auth.ee.dsproject.crush.board.Board;
+import gr.auth.ee.dsproject.crush.board.Tile;
+
+import java.util.ArrayList;
+
+public class HeuristicPlayer implements AbstractPlayer
+{
+  // TODO Fill the class code.
+
+  int score;
+  int id;
+  String name;
+
+  public HeuristicPlayer (Integer pid)
+  {
+    id = pid;
+    score = 0;
+  }
+
+  @Override
+  public String getName ()
+  {
+    return "evaluation";
+  }
+
+  @Override
+  public int getId ()
+  {
+    return id;
+  }
+
+  @Override
+  public void setScore (int score)
+  {
+    this.score = score;
+  }
+
+  @Override
+  public int getScore ()
+  {
+    return score;
+  }
+
+  @Override
+  public void setId (int id)
+  {
+
+    this.id = id;
+
+  }
+
+  @Override
+  public void setName (String name)
+  {
+
+    this.name = name;
+
+  }
+
+  @Override
+  public int[] getNextMove (ArrayList<int[]> availableMoves, Board board)
+  {
+
+    int[] move = availableMoves.get(findBestMoveIndex(availableMoves, board));
+
+    return calculateNextMove(move);
+
+  }
+
+  int[] calculateNextMove (int[] move)
+  {
+
+    int[] returnedMove = new int[4];
+
+    if (move[2] == CrushUtilities.UP) {
+      // System.out.println("UP");
+      returnedMove[0] = move[0];
+      returnedMove[1] = move[1];
+      returnedMove[2] = move[0];
+      returnedMove[3] = move[1] + 1;
+    }
+    if (move[2] == CrushUtilities.DOWN) {
+      // System.out.println("DOWN");
+      returnedMove[0] = move[0];
+      returnedMove[1] = move[1];
+      returnedMove[2] = move[0];
+      returnedMove[3] = move[1] - 1;
+    }
+    if (move[2] == CrushUtilities.LEFT) {
+      // System.out.println("LEFT");
+      returnedMove[0] = move[0];
+      returnedMove[1] = move[1];
+      returnedMove[2] = move[0] - 1;
+      returnedMove[3] = move[1];
+    }
+    if (move[2] == CrushUtilities.RIGHT) {
+      // System.out.println("RIGHT");
+      returnedMove[0] = move[0];
+      returnedMove[1] = move[1];
+      returnedMove[2] = move[0] + 1;
+      returnedMove[3] = move[1];
+    }
+    return returnedMove;
+  }
+  
+  int deletedCandies(int[] move, Board board){
+	  int numberOfDeletedCandies=0;
+	  int i=0;
+	  int[] returnedMove = calculateNextMove(move);
+	  int minVS = returnedMove[3];
+	  int minHS = returnedMove[2];
+	  board = CrushUtilities.boardAfterFirstMove(board, move);
+	  
+	  ArrayList<Integer> verticalTiles1Colors = new ArrayList<Integer>();
+	  ArrayList<Integer> verticalTiles2Colors = new ArrayList<Integer>();
+	  ArrayList<Integer> horizontalTiles1Colors = new ArrayList<Integer>();
+	  ArrayList<Integer> horizontalTiles2Colors = new ArrayList<Integer>();
+	 
+	  //VERTICAL SWAP
+	  if(move[2]==3 || move[2]==1){ 
+		  int startOfHorizontalAxis = returnedMove[0] - 2;
+		  
+		  for(i=0; i<5; i++){
+			  horizontalTiles1Colors.add((board.giveTileAt(startOfHorizontalAxis + i, returnedMove[3])).getColor());
+			  horizontalTiles2Colors.add((board.giveTileAt(startOfHorizontalAxis + i, returnedMove[1])).getColor());
+		  }
+		  
+		  if(returnedMove[3]>returnedMove[1]){
+			  minVS = returnedMove[1];
+		  }
+		  minVS = minVS - 2;
+		  for(i=0; i<3; i++){
+			  verticalTiles1Colors.add((board.giveTileAt(returnedMove[0], minVS + i)).getColor());
+			  verticalTiles2Colors.add((board.giveTileAt(returnedMove[0], minVS + i + 3)).getColor());
+		  }
+
+	  }
+	  //HORIZONTAL SWAP
+	  else{
+		  int startOfVerticalAxis = returnedMove[1] - 2;
+		  
+		  for(i=0; i<5; i++){
+			  verticalTiles1Colors.add((board.giveTileAt(returnedMove[2], startOfVerticalAxis + i)).getColor());
+			  verticalTiles2Colors.add((board.giveTileAt(returnedMove[0], startOfVerticalAxis + i)).getColor());
+		  }
+		  
+		  if(returnedMove[2]>returnedMove[0]){
+			  minHS = returnedMove[0];
+		  }
+		  minHS = minHS - 2;
+		  for(i=0; i<3; i++){
+			  horizontalTiles1Colors.add((board.giveTileAt(minHS + i, returnedMove[1])).getColor());
+			  horizontalTiles2Colors.add((board.giveTileAt(minHS + i +3, returnedMove[1])).getColor());
+		  }
+	  }
+	  
+	  return numberOfDeletedCandies;
+  }
+
+  int findBestMoveIndex (ArrayList<int[]> availableMoves, Board board)
+  {	
+	  double[] evals = new double[availableMoves.size()];
+    // TODO Fill the missing code.
+
+	  
+  }
+
+  double moveEvaluation (int[] move, Board board)
+  {
+    // TODO Fill the missing code.
+
+  }
+
+}

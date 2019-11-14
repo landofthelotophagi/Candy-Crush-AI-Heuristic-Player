@@ -1,0 +1,379 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package userapplication;
+import java.lang.Math;
+import java.io.*;
+import java.lang.System;
+import java.io.File;
+import java.io.FileOutputStream;
+import ithakimodem.*;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+/**
+ *
+ * @author optimus
+ */
+public class UserApplication {
+
+    /**
+     *
+     */
+    String echo_request_code = "E6861\r";
+    String image_request_code_free = "M8206\r";
+    String image_request_code_with_errors = "G1571\r";
+    String GPS_request_code = "P0331"; 
+    String ACK_result_code = "Q0511\r";
+    String NACK_result_code = "R8909\r";       
+    Modem modem = new Modem(32000);
+    public void UserAplication(){}
+    public String getFree(){return image_request_code_free;}
+    public String getWithErrors(){return image_request_code_with_errors;}
+    public boolean connect()            
+    {
+        String s="";
+        boolean connect=false;
+        for(int i=0;;i++)
+        {
+             modem.write("ATD2310ITHAKI\r".getBytes());
+            for(int j=0;;j++)
+            {
+               s+=(char)modem.read();
+               if (s.contains("\r\n\n\n"))
+               {
+                   connect=true;
+                   break;
+                }else if(j>1000)
+                {
+                System.out.print("error");
+                break;
+                }
+            }
+            if ( connect== true || i >9)
+            {
+                break;
+            }
+        }
+        System.out.print(s);//ΠΡΩΣΟΧΗ ΠΡΟΧΗ ΠΡΟΣΟΡΙΝΟ
+        return connect;
+    }
+
+    public void echo()
+    {   
+        File graph = new File("C:\\Users\\optimus\\Desktop\\epifania ergasias\\δωμές δεδομένων\\graph11.txt");
+        long rt;//response time
+        //for(long ot= System.currentTimeMillis(); System.currentTimeMillis() - ot < 4.2* 60 * 1000 ;)//overall time
+        long ot = System.currentTimeMillis();//start time
+        try{
+            FileWriter fileWriter = new FileWriter(graph);
+            while(System.currentTimeMillis() - ot < 4.2 /* 60*/ * 1000 )
+            {
+                rt = 0;
+                String s = "";
+                modem.write(echo_request_code.getBytes());
+                rt -= System.currentTimeMillis();
+                for(int j=0;;j++)
+                {
+                    s +=(char) modem.read();
+                    if (s.contains("PSTOP"))
+                    {
+                        s+=" ";
+                        //System.out.print(s);//ΠΡΩΣΟΧΗ ΠΡΟΣΟΡΙΝΟ
+                        rt+= System.currentTimeMillis();
+                        fileWriter.write(rt+"\r\n");
+                        System.out.print(rt+"\n");//ΠΡΩΣΟΧΗ ΠΡΟΣΟΡΙΝΟ
+                        break;
+                    }
+                    else if(j>1000)
+                    {
+                        System.out.print("error");
+                        break;
+                    }
+                }
+            }
+            fileWriter.close();
+        }
+        catch(IOException io){
+                io.printStackTrace();
+        }
+    }
+    public void imageFree(String string, String onoma)
+    {
+        boolean write = modem.write(string.getBytes());
+        if(!write){return;}
+        File fileImage = new File("C:\\Users\\optimus\\Desktop\\epifania ergasias\\δωμές δεδομένων\\"+onoma);
+        try
+        {        
+            FileOutputStream fileImageStream = new FileOutputStream(fileImage);
+            //ObjectOutputStream image = new ObjectOutputStream(fileImageStream);
+            //image.writeInt(2048);
+            fileImage.createNewFile();
+            byte x=0;
+            byte x2;
+            String s="";
+            s+=(char)255;
+            boolean start = false;
+            fileImageStream.write((byte)0xff);
+            for(int i = 0;;i++)
+            {
+                x2=(byte) x;
+                x =(byte) modem.read();
+                //s+=(char)x;
+                //System.out.print("\n"+x+" ");
+                if((x==(byte) 0xd8 && x2== (byte) 0xff) || start){s+=(char)x;fileImageStream.write(x);start = true;System.out.print("\n"+x);}
+                if(x== (byte) 0xd9 && x2==(byte) 0xff){break;}
+            }
+            System.out.print(s);
+            //fileImageStream.write(s.getBytes());
+            fileImageStream.close();
+        }catch(FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    public void arq()
+    {
+        File graphBin = new File("C:\\Users\\optimus\\Desktop\\epifania ergasias\\δωμές δεδομένων\\graph51.bin");
+        File graph = new File("C:\\Users\\optimus\\Desktop\\epifania ergasias\\δωμές δεδομένων\\graph51.txt");
+        boolean data=true;
+        boolean write=true;
+        String s;
+        int now;
+        int myFcs ;
+        String fcs;
+        long dt = -System.currentTimeMillis();
+        long tStart=-dt;
+        boolean first;
+        try
+        {
+            FileOutputStream fileOutputStream = new FileOutputStream(graphBin);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            //FileWriter fileWriter = new FileWriter(graph);
+            PrintWriter writer = new PrintWriter(graph, "UTF-8");
+            int i,l=0;
+            for(i=1;;i++)
+            {
+                l++;
+                if((System.currentTimeMillis()-tStart < 1000 /** 60*/ * 4.2) || !data )
+                {
+                    fcs= "";
+                    first = true;
+                    s="";
+                    if(data){write = modem.write(ACK_result_code.getBytes());dt=-System.currentTimeMillis();}else{write = modem.write(NACK_result_code.getBytes());}
+                    if (!write)
+                        {System.out.print("errorACK");return;}
+                    else
+                    {
+                        for(;;)
+                        {
+                            now = modem.read();
+                            s += (char) now;
+////                            if (s.contains("<") && (!s.contains(">")))
+////                            {
+////                                now += modem.read();
+////                                s += (char)now;
+////                                myFcs= now;
+////                                for(;;)
+////                                {
+////                                    //System.out.print("2");
+////                                    now = modem.read();
+////                                    s += (char) now;
+////                                    if(s.contains(">")){ /*System.out.print("3");*/ break;}
+////                                    myFcs ^= now;                            
+////                                }
+////                            }
+//                            if(s.contains("> ") && first)
+//                            {
+//                                for(int g=0;g<3;g++)
+//                                {
+//                                    now += modem.read();
+//                                    s += (char)now;
+//                                    if(s.contains(fcs+" ") && g>0){ break;}
+//                                    //System.out.print("4");
+//                                    fcs +=(char) now;
+//                                }   
+//                                first=false;
+//                            }
+                            //System.out.print("1");
+                            if(s.contains("PSTOP"))
+                            {
+                                //myFcs="";
+                                myFcs=(byte)s.charAt(31);
+                                for(int t=32;t<47;t++)
+                                {
+                                    String x="";
+                                    int h=0;
+                                    //for(int j=0;j<myFcs.length();j++){
+                                        h += (byte)myFcs ^ (byte)s.charAt(t) ;
+                                        x=String.valueOf(h);
+                                    //}
+                                    myFcs=h;
+                                    System.out.print(s.charAt(t));//proswxh prosorino
+                                    //System.out.print(x+"__"+myFcs+"|");//prosoxh prosorino
+                                }
+                                //String test=String.valueOf(myFcs.charAt(0) ^ s.substring(46, 46+1).charAt(0)) ;
+                                //System.out.print("{"+test+"}");//prwspxh prosorino
+                                fcs=s.substring(49,52);
+                                break;
+                            }
+                        }
+                  
+                        if(myFcs ==Integer.parseInt(fcs) )
+                        {
+                            data = true;
+                            dt+=System.currentTimeMillis();
+                            //fileWriter.write(String.valueOf(dt)+"\r\n");
+                            writer.println(String.valueOf(dt)+"\n");
+                            objectOutputStream.writeLong(dt);
+                            System.out.print(" true "+ fcs +" / "+ String.valueOf(myFcs) +" ");
+                        }else
+                        {
+                            data = false;
+                            i--;
+                            System.out.print(" false "+ fcs +" / "+ String.valueOf(myFcs) +" ");
+                            //fileWriter.write("false "+ fcs +" / "+ String.valueOf(myFcs) +" ");//PROSOXH PEOSORINO
+                        }
+                        System.out.print(s+"\n");//ΠΡΟΣΟΧΗ ΠΡΟΣΩΡΙΝΟ
+                        //fileWriter.write(s+"\r\n");// prosoxh prosorino
+                    }
+                }else{i--;break;}
+            }
+            float lo=((float)l)/((float)i);
+            System.out.print(lo);
+            //fileWriter.write("<"+String.valueOf(i)+"> {{l/i="+String.valueOf(l/i)+"}");
+            writer.println("<"+String.valueOf(i)+"> {l/i="+String.valueOf(lo)+"} ("+String.valueOf(l)+")");
+            //fileWriter.close();
+            writer.close();
+            objectOutputStream.close();
+            fileOutputStream.close();
+        }
+        catch(IOException io)
+        {
+            io.printStackTrace();
+        }
+        catch(Exception e)
+        {e.printStackTrace();}
+    }
+    public void gps()
+    {
+        int now;
+        long tLong,lastT=0;
+        String helper;
+        String s;
+        String[] T = new String[4];
+        boolean gpgga;
+        boolean first;
+        String n;
+        String e;
+        String t;
+        String code;
+        String[] TArray = new String[9];
+        int host=0;
+
+       t=n=e=""; 
+       code=GPS_request_code+"R=1005299\r";//XPPPPLL
+       modem.write(code.getBytes());
+       s=helper="";
+       gpgga = false;
+       first = true;
+       for(;!helper.contains("STOP ITHAKI GPS TRACKING");)
+       {
+           //System.out.print(" (1)\n "+s);//prososxh prosorino
+           now=modem.read();
+           helper+=(char)(now);
+           s+=(char)(now);
+           if (helper.contains("$GPGGA,") /*&& first*/)
+           {
+               helper="";
+               for(;;)
+               {
+                   now=modem.read();
+                   s+=(char)now;
+                   helper+=(char)now;
+                   //System.out.print(helper+"="+s+"\n\n\n");
+                   if(helper.contains(".")){break;}
+                   t+=(char)now;
+               }
+//                   System.out.print(" (2) ");
+               helper="";
+               gpgga=true; 
+               first= false;
+           }
+           if(helper.contains(",") && gpgga && !helper.contains("N"))
+           {
+               //System.out.print(helper+"\n"+ s);
+               helper="";
+               for(;;)
+               {
+//                       System.out.print(" (3)\n ");
+                   now= modem.read();
+                   helper+= (char)(now);
+                   s+=(char)(now);
+//                       System.out.print(helper+"="+s+"\n\n\n");
+                   if (helper.contains(",")){/*System.out.print(" (4) "+ helper+"\n"+ s+"\n")*/;break;}
+                   n+= (char)(now);
+               }
+               helper="";
+           }
+           if(helper.contains("N,") && gpgga)
+           {
+               helper="";
+               for(;;)
+               {
+//                       System.out.print(" (5)\n ");
+                   now= modem.read();
+                   helper+= (char)(now);
+                   s+=(char)(now);
+                   if (helper.contains(",")){/*System.out.print(" (6) ");*/break;}
+                   e+= (char)(now);
+               }
+               gpgga= false;
+               System.out.print("N="+n+"  "+"E="+e+"  "+"T="+t+"\n");
+               tLong= Long.parseLong(t.substring(0, 2))*3600;
+               tLong+= Long.parseLong(t.substring(2, 4))*60;
+               tLong+= Long.parseLong(t.substring(4));
+               if((host==0 || tLong-lastT>10||tLong-lastT<0)&& host<9)
+               {
+                   s+="\n___________________________________________________\n";
+                   lastT=tLong;
+                   TArray[host]=e.substring(1, 5)+String.valueOf((int)(Float.parseFloat("0."+e.substring(6))*60));
+                   TArray[host]+=n.substring(0, 4)+String.valueOf((int)(Float.parseFloat("0."+n.substring(5))*60));
+                   host++;
+               }
+               n=e=t="";
+           }
+       }
+       String gpsImageCode = GPS_request_code;//+"T=";
+       for(host=0;host<9;host++)
+       {
+           System.out.print("\n"+"("+String.valueOf(host)+")"+TArray[host]);
+           gpsImageCode+="T="+TArray[host];
+           
+       }
+       gpsImageCode+="\r";
+       System.out.print(/*"N="+n+"  "+"N="+e+" "+"T="+t+"\n"+*/"\n"+s+"\n"+"T="+gpsImageCode);
+       this.imageFree(gpsImageCode,"GPSimage.jpeg");
+       
+
+    }
+
+        /**
+         * @param args the command line arguments
+         */
+    public static void main(String[] args)
+    {
+        UserApplication louverdhs = new UserApplication();
+        boolean connect = louverdhs.connect();
+//        louverdhs.echo();
+//        louverdhs.imageFree(louverdhs.getFree() , "imageFree.jpeg");
+//        louverdhs.imageFree(louverdhs.getWithErrors(),"imageWhithErrors.jpeg");
+//        louverdhs.arq();
+        louverdhs.gps();
+    }
+
+}

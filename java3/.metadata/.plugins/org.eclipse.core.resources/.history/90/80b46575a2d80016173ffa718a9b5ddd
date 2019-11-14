@@ -1,0 +1,6 @@
+package gr.auth.ee.dsproject.crush.node;
+
+public class Node81968715
+{
+  Node81968715 parent;
+}

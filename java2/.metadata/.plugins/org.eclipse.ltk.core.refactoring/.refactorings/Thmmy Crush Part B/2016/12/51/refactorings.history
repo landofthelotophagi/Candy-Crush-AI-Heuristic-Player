@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;min&apos; in &apos;gr.auth.ee.dsproject.crush.player.HeuristicPlayer.deletedCandies(...)&apos; to &apos;minVS&apos;&#x0D;&#x0A;- Original project: &apos;Thmmy Crush Part B&apos;&#x0D;&#x0A;- Original element: &apos;gr.auth.ee.dsproject.crush.player.HeuristicPlayer.deletedCandies(int[], Board).min&apos;&#x0D;&#x0A;- Renamed element: &apos;min&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;min&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;gr.auth.ee.dsproject.crush.player{HeuristicPlayer.java[HeuristicPlayer~deletedCandies~\[I~QBoard;@min!2313!2338!2317!2319!I!0!false" name="minVS" references="true" stamp="1481823397507" version="1.0"/>
+</session>
