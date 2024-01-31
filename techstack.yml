@@ -1,0 +1,42 @@
+repo_name: landofthelotophagi/Candy-Crush-AI-Heuristic-Player
+report_id: bf2afbbaa244895584a7d02ba6d8139d
+version: 0.1
+repo_type: Public
+timestamp: '2024-01-31T09:21:22+00:00'
+requested_by: landofthelotophagi
+provider: github
+branch: master
+detected_tools_count: 3
+tools:
+- name: Java
+  description: A concurrent, class-based, object-oriented, language specifically designed
+    to have as few implementation dependencies as possible
+  website_url: https://www.java.com
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/995/K85ZWV2F.png
+  detection_source_url: https://github.com/landofthelotophagi/Candy-Crush-AI-Heuristic-Player
+  detection_source: Repo Metadata
+- name: JavaScript
+  description: Lightweight, interpreted, object-oriented language with first-class
+    functions
+  website_url: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1209/javascript.jpeg
+  detection_source_url: https://github.com/landofthelotophagi/Candy-Crush-AI-Heuristic-Player
+  detection_source: Repo Metadata
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/landofthelotophagi/Candy-Crush-AI-Heuristic-Player
+  detection_source: Repo Metadata
